@@ -113,6 +113,8 @@ object Driver extends App with BaseParsers {
     val validate_only = opt[Boolean]()
     val source_ip = opt[String]()
     val destination_ip = opt[String]()
+    val source_port = opt[String]()
+    val destination_port = opt[String]()
 
     validateOpt (validate_only, input_port) {
       case (Some(true), None) => Right(Unit)
@@ -146,6 +148,14 @@ object Driver extends App with BaseParsers {
         },
         conf.destination_ip.toOption match {
           case Some(ip) => Assign(IPDst, ConstantValue(parse(ipParser, ip).host))
+          case None     => NoOp
+        },
+        conf.source_port.toOption match {
+          case Some(port) => Assign(TcpSrc, ConstantValue(port.toInt))
+          case None     => NoOp
+        },
+        conf.destination_port.toOption match {
+          case Some(port) => Assign(TcpDst, ConstantValue(port.toInt))
           case None     => NoOp
         }))
 
