@@ -50,7 +50,7 @@ object SourcePortMatch extends BaseParsers {
     for {
       _  <- spacesParser
       n1 <- optional(parseChar('!') >> someSpacesParser)
-      _  <- oneOf(parseString("--source-port"), parseString("--sport"), parseString("--source-ports"), parseString("--sports"))
+      _  <- oneOf(parseString("--source-ports"), parseString("--sports"), parseString("--source-port"), parseString("--sport"))
       n2 <- conditional(optional(someSpacesParser >> parseChar('!')),
                         !n1.isDefined)
       lowerPort <- someSpacesParser >> portParser
@@ -66,7 +66,7 @@ object DestinationPortMatch extends BaseParsers {
     for {
       _  <- spacesParser
       n1 <- optional(parseChar('!') >> someSpacesParser)
-      _  <- oneOf(parseString("--destination-port"), parseString("--dport"), parseString("--destination-ports"), parseString("--dports"))
+      _  <- oneOf(parseString("--destination-ports"), parseString("--dports"), parseString("--destination-port"), parseString("--dport"))
       n2 <- conditional(optional(someSpacesParser >> parseChar('!')),
                         !n1.isDefined)
       lowerPort <- someSpacesParser >> portParser
