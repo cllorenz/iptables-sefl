@@ -9,7 +9,7 @@ package extensions.filter
 
 import org.change.v2.analysis.expression.concrete.ConstantValue
 import org.change.v2.analysis.processingmodels.instructions.{:==:, Constrain}
-import org.change.v2.util.canonicalnames.{Proto, ICMPProto, UDPProto, TCPProto}
+import org.change.v2.util.canonicalnames.{Proto, ICMPProto, UDPProto, TCPProto, ESPProto, GREProto}
 
 import core._
 import extensions.tcp.TcpExtension
@@ -20,7 +20,7 @@ case class ProtocolMatch(protocol: String) extends Match {
 
   override protected def validateIf(context: ValidationContext): Boolean =
     // Check if it is one of the 'named' protocols
-    (List("tcp", "udp", "icmp", "all") contains protocol) ||
+    (List("tcp", "udp", "icmp", "esp", "gre", "all") contains protocol) ||
     // TODO(calincru): Check if it is a valid numeric protocol or a protocol
     // from /etc/protocols.
     false
@@ -38,7 +38,9 @@ case class ProtocolMatch(protocol: String) extends Match {
     } else {
       val protoMap = Map("tcp" -> TCPProto,
                          "udp" -> UDPProto,
-                         "icmp" -> ICMPProto)
+                         "icmp" -> ICMPProto,
+                         "esp" -> ESPProto,
+                         "gre" -> GREProto)
 
       SeflCondition.single(
         Constrain(Proto, :==:(ConstantValue(protoMap(protocol)))))
