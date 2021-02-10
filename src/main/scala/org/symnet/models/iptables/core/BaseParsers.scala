@@ -88,6 +88,12 @@ trait BaseParsers {
 
   def digitParser: Parser[Int] = parseCharIf(_.isDigit).map(_.asDigit)
 
+  def vlanParser: Parser[Short] =
+    for {
+      maybeNr <- some(parseCharIf(c => c.isDigit)).map(
+        x => Try(java.lang.Short.decode(x)).toOption) if maybeNr.isDefined
+    } yield maybeNr.get
+
   def hexLongParser: Parser[Long] =
     for {
       maybeNr <- some(parseCharIf(c => charIsValidHexa(c))).map(

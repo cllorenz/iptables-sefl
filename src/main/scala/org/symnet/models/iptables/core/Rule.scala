@@ -34,7 +34,7 @@ case class Rule(
     import extensions.filter.{InInterfaceMatch, OutInterfaceMatch}
 
     val (regexMatches, nonregexMatches) = matches.partition(_ match {
-      case InInterfaceMatch(_, true) | OutInterfaceMatch(_, true) => true
+      case InInterfaceMatch(_, true, _) | OutInterfaceMatch(_, true, _) => true
       case _ => false
     })
 
@@ -42,17 +42,17 @@ case class Rule(
       List(this)
     } else {
       val inInterfaces = regexMatches.collect {
-        case inMatch @ InInterfaceMatch(name, true) =>
+        case inMatch @ InInterfaceMatch(name, true, _) =>
           interfaces.filter(_.startsWith(name))
       }
       val outInterfaces = regexMatches.collect {
-        case outMatch @ OutInterfaceMatch(name, true) =>
+        case outMatch @ OutInterfaceMatch(name, true, _) =>
           interfaces.filter(_.startsWith(name))
       }
       val inCombinations: List[List[Match]] = cartesianJoin(
-        inInterfaces.map(_.map(in => InInterfaceMatch(in, false))))
+        inInterfaces.map(_.map(in => InInterfaceMatch(in, false, None))))
       val outCombinations: List[List[Match]] = cartesianJoin(
-        outInterfaces.map(_.map(out => OutInterfaceMatch(out, false))))
+        outInterfaces.map(_.map(out => OutInterfaceMatch(out, false, None))))
       val allCombinations: List[List[Match]] =
         inCombinations.map(ins => outCombinations.map(_ ++ ins)).flatten
 

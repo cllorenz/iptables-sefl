@@ -12,7 +12,7 @@ import org.change.v2.analysis.processingmodels.instructions.{:==:, Constrain}
 
 import core._
 
-case class InInterfaceMatch(interface: String, regex: Boolean) extends Match {
+case class InInterfaceMatch(interface: String, regex: Boolean, vlan: Option[Short]) extends Match {
   type Self = InInterfaceMatch
 
   override protected def validateIf(context: ValidationContext): Boolean = {
@@ -27,12 +27,21 @@ case class InInterfaceMatch(interface: String, regex: Boolean) extends Match {
 
   override def seflCondition(options: SeflGenOptions): SeflCondition = {
     import virtdev.InputPortTag
-    SeflCondition.single(
-      Constrain(InputPortTag, :==:(ConstantValue(options.portsMap(interface)))))
+    import org.change.v2.util.canonicalnames.{VLANTag}
+    if (vlan.isDefined) {
+      SeflCondition.conjunction(List(
+        Constrain(InputPortTag, :==:(ConstantValue(options.portsMap(interface)))),
+        Constrain(VLANTag, :==:(ConstantValue(vlan.get)))
+      ))
+    } else {
+      SeflCondition.single(
+        Constrain(InputPortTag, :==:(ConstantValue(options.portsMap(interface))))
+      )
+    }
   }
 }
 
-case class OutInterfaceMatch(interface: String, regex: Boolean) extends Match {
+case class OutInterfaceMatch(interface: String, regex: Boolean, vlan: Option[Short]) extends Match {
   type Self = OutInterfaceMatch
 
   override protected def validateIf(context: ValidationContext): Boolean = {
@@ -47,8 +56,17 @@ case class OutInterfaceMatch(interface: String, regex: Boolean) extends Match {
 
   override def seflCondition(options: SeflGenOptions): SeflCondition = {
     import virtdev.OutputPortTag
-    SeflCondition.single(
-      Constrain(OutputPortTag, :==:(ConstantValue(options.portsMap(interface)))))
+    import org.change.v2.util.canonicalnames.{VLANTag}
+    if (vlan.isDefined) {
+      SeflCondition.conjunction(List(
+        Constrain(OutputPortTag, :==:(ConstantValue(options.portsMap(interface)))),
+        Constrain(VLANTag, :==:(ConstantValue(vlan.get)))
+      ))
+    } else {
+      SeflCondition.single(
+        Constrain(OutputPortTag, :==:(ConstantValue(options.portsMap(interface))))
+      )
+    }
   }
 }
 
@@ -64,8 +82,9 @@ object InterfaceMatch extends BaseParsers {
                         !n1.isDefined)
       int <- someSpacesParser >> identifierParser
       maybePlus <- optional(parseChar('+'))
+      maybeVlan <- optional(parseChar('.') >> vlanParser)
     } yield Match.maybeNegated(
-      InInterfaceMatch(int, maybePlus.isDefined), n1 orElse n2.flatten)
+      InInterfaceMatch(int, maybePlus.isDefined, maybeVlan), n1 orElse n2.flatten)
 
   def outParser: Parser[Match] =
     for {
@@ -76,6 +95,7 @@ object InterfaceMatch extends BaseParsers {
                         !n1.isDefined)
       int <- someSpacesParser >> identifierParser
       maybePlus <- optional(parseChar('+'))
+      maybeVlan <- optional(parseChar('.') >> vlanParser)
     } yield Match.maybeNegated(
-      OutInterfaceMatch(int, maybePlus.isDefined), n1 orElse n2.flatten)
+      OutInterfaceMatch(int, maybePlus.isDefined, maybeVlan), n1 orElse n2.flatten)
 }
