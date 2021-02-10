@@ -80,7 +80,7 @@ class Driver(
         iptRouter,
         iptRouter.inputPort(inputPort),
         otherInstr = initInstruction,
-        log = true
+        log = false
       )
     }
 }
