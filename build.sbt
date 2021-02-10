@@ -26,7 +26,8 @@ testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework")
 logBuffered := false
 parallelExecution in Test := false
 
-javaOptions in run += "-Xmx8G"
+javaOptions in run += "-Xmx62G"
+javaOptions in run += "-Xss512m"
 fork in run := true
 
 libraryDependencies ++= {
