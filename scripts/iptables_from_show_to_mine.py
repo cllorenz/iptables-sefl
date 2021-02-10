@@ -1,7 +1,7 @@
 import sys
 
 
-TABLE_NAMES = ['raw', 'mangle', 'nat', 'filter']
+TABLE_NAMES = ['filter', 'raw', 'mangle', 'nat']
 
 
 def main(args):
